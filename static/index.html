@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crypto News Aggregator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1f2937;
+    }
+
+    input {
+      padding: 0.5rem;
+      width: 200px;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      background: #1d4ed8;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .card h2 {
+      margin: 0 0 0.5rem;
+    }
+
+    .card p {
+      margin: 0.5rem 0;
+      color: #374151;
+    }
+
+    .card a {
+      text-decoration: none;
+      color: #3b82f6;
+    }
+
+    #results {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Crypto News Aggregator</h1>
+  <div style="text-align:center;">
+    <input type="text" id="symbol" placeholder="e.g., btc, eth, nft">
+    <button onclick="fetchNews()">Search</button>
+  </div>
+  <div id="results"></div>
+
+  <script>
+    async function fetchNews() {
+      const symbol = document.getElementById('symbol').value.trim();
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = "<p>Loading...</p>";
+
+      try {
+        const res = await fetch(`/news/${symbol}`);
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          resultsDiv.innerHTML = "<p>No news found.</p>";
+          return;
+        }
+
+        resultsDiv.innerHTML = "";
+        data.forEach(article => {
+          const card = document.createElement('div');
+          card.className = "card";
+          card.innerHTML = `
+            <h2>${article.title}</h2>
+            <p><strong>Source:</strong> ${article.source}</p>
+            <p><strong>Published:</strong> ${new Date(article.published_at).toLocaleString()}</p>
+            <p>${article.description}</p>
+            <a href="${article.url}" target="_blank">Read more</a>
+          `;
+          resultsDiv.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        resultsDiv.innerHTML = "<p>Error fetching news.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
